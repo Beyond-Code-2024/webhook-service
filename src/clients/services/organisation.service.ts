@@ -58,4 +58,12 @@ export class OrganisationService {
     }
     return organisation;
   }
+
+  async findOrganisationById(organisationId: string) {
+    return this.organisationModel.findById(organisationId);
+  }
+
+  async findOrganisationByName(name: string) {
+    return this.organisationModel.findOne({ name });
+  }
 }

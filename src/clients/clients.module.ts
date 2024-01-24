@@ -9,6 +9,7 @@ import { OrganisationController } from './controllers/organisations/organisation
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { OrganisationService } from './services/organisation.service';
+import { AuthenticateOrganisationGuard } from './guards/auth-organisation.guard';
 
 @Module({
   imports: [
@@ -31,6 +32,11 @@ import { OrganisationService } from './services/organisation.service';
     ]),
   ],
   controllers: [OrganisationController],
-  providers: [OrganisationService, AuthService, ConfigService],
+  providers: [
+    OrganisationService,
+    AuthService,
+    ConfigService,
+    AuthenticateOrganisationGuard,
+  ],
 })
 export class ClientsModule {}
