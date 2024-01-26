@@ -1,73 +1,148 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Webhook Service
+---
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Webhooks management service which other services can use to register and forget complexity of delivering webhooks to endpoints.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
+## Tech Stack
+NestJs, Kafka, MongoDB, Redis
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
-## Installation
 
-```bash
-$ npm install
+## Low level Design
+below is the current schema design to be implemented.
+
+### Entities
+**Organisation:**
+- organisation Details.
+- organisation can register services under it.
+- we can enable or disable the organisation.
+
+schema:
+```TS
+interface Organisation {
+    name: string;
+    displayName: string;
+    email: string;
+    password: string;
+    planType: 'BASIC' | 'PRO' | 'ENTERPRISE';
+}
 ```
 
-## Running the app
+**Service:**
+- services Details.
+- services will register endpoints and send event webhooks.
+- can be enabled or disabled.
+- we can define events under a service.
 
-```bash
-# development
-$ npm run start
 
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+schema:
+```TS
+interface Service {
+    organisationId: string;
+    events: string[];
+    name: string;
+    apiKey: string;
+    apiSecret: string;
+    enabled: boolean;
+}
 ```
 
-## Test
+**Endpoint:**
+- services will create endpoints.
+- will have endpoint details.
 
-```bash
-# unit tests
-$ npm run test
+Schema:
+```TS
+interface Comment {
+    type: 'AUTOMATIC' | 'MANUAL',
+    reason: string;
+}
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+ interface Endpoint {
+    serviceId: string;
+    name: string;
+    endpoint: string;
+    events: Event[];
+    active: boolean;
+    comments: Comment[]; // userful for tracking why we disabled
+    createdAt: Date
+    updatedAt: Date
+}
 ```
 
-## Support
+**Events:**
+- has all the events metadata that are registered with a service
+- service to events will be a one to many relationship.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Schema:
+```TS
+interface Event {
+    serviceId: string;
+    name: string;
+    description: string;
+    active: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+}
+```
 
-## Stay in touch
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+**EventLogs:**
+- keeps status, retryCount and logs of the responses given by the customer. endpoints.
 
-## License
+Schema:
+```TS
+interface Log {
+    requestTime: Date;
+    endpointResponse: object | null;
+    endpointResponseStatus: string; // HTTP status code.
+}
 
-Nest is [MIT licensed](LICENSE).
+interface EventLogs {
+    serviceId: string;
+    endpointId: string;
+    event: Event;
+    event_id: string; // generated by us.
+    status: 'QUEUED' | 'DELIVERED' | 'FAILED';
+    payload: string;
+    retryCount: string;
+    logs: Log[];
+    idempotency: {
+        key: string; // to be sent by client service.
+        ttl: number; // number of seconds to keep the idempotency key active.
+    }
+    createdAt: string;
+    updatedAt: string;
+}
+```
+
+
+## RoadMap
+- [ ] introduce organisations APIs.
+    - [x] register organisation
+    - [x] login
+    - [ ] change password
+    - [ ] email verification
+- [ ] introduce service APIs
+     - [ ] register service API endpoint
+     - [ ] update service details
+     - [ ] re-generate service credentials
+     - [ ] add events for a service
+     - [ ] enable disable service
+- [ ] introduce endpoint APIs
+     - [ ] create endpoint
+     - [ ] update endpoint
+     - [ ] assign which events can be sent
+     - [ ] activate deactivate endpoint
+
+<!-- TODO: fill up the subtasks -->
+- [ ] mark an endpoint as faulty endpoint.
+- [ ] introduce event APIs
+    - [ ] add events API
+    - [ ] update events API
+- [ ] introduce sendWebhook API for services to call.
+- [ ] introduce Redis for idempotency locks.
+- [ ] introduce rate limiting for service level API calls.
+- [ ] analytics
+- [ ] alerting clients(organisations) about any delivery failures.
