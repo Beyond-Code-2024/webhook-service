@@ -3,6 +3,7 @@ import {
   CanActivate,
   ExecutionContext,
   UnauthorizedException,
+  Logger,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { OrganisationService } from '../services/organisation.service';
@@ -13,6 +14,8 @@ type jwtPayload = {
 
 @Injectable()
 export class AuthenticateOrganisationGuard implements CanActivate {
+  private readonly logger = new Logger(AuthenticateOrganisationGuard.name);
+
   constructor(
     private readonly jwtService: JwtService,
     private readonly organisationService: OrganisationService,
@@ -32,10 +35,13 @@ export class AuthenticateOrganisationGuard implements CanActivate {
     } catch (exception: unknown) {
       throw new UnauthorizedException('invalid jwt');
     }
+    this.logger.log(
+      `authenticating request for organisationId: ${organisationId}`,
+    );
     const organisation =
       await this.organisationService.findOrganisationById(organisationId);
     if (!organisation) {
-      console.log('organisation not found');
+      this.logger.log(`organisation with id: ${organisationId} was not found`);
       throw new UnauthorizedException('invalid jwt');
     }
 

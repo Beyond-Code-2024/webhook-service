@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
+  Logger,
 } from '@nestjs/common';
 import { Organisation as OrganisationType } from '../types';
 import { InjectModel } from '@nestjs/mongoose';
@@ -11,6 +12,7 @@ import { generateSaltedHash } from '../clients.utils';
 
 @Injectable()
 export class OrganisationService {
+  private readonly logger = new Logger(OrganisationService.name);
   constructor(
     @InjectModel(Organisation.name)
     private organisationModel: Model<Organisation>,
@@ -38,7 +40,11 @@ export class OrganisationService {
         password: saltedPassword,
       });
     } catch (error) {
-      console.log(error);
+      this.logger.error(
+        `DBERROR: not able to create organisation: ${error.message}`,
+        error.stack,
+        { name: data.name },
+      );
       throw new InternalServerErrorException('not able to create organisation');
     }
 
