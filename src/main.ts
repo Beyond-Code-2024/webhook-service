@@ -4,8 +4,8 @@ import Config from './lib/app.config';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  app.useGlobalPipes(new ValidationPipe());
-  await app.listen(process.env.NODE_PORT || 8000);
+    const app = await NestFactory.create(AppModule);
+    app.useGlobalPipes(new ValidationPipe());
+    await app.listen(process.env.NODE_PORT || 8000);
 }
 bootstrap();

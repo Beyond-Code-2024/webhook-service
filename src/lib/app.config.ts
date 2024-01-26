@@ -5,8 +5,6 @@ import { join } from 'path';
 const YAML_CONFIG_FILENAME = `${process.env.NODE_ENV}.env.yaml`;
 
 export default () => {
-  console.log(join(__dirname, '..', YAML_CONFIG_FILENAME));
-  return yaml.load(
-    readFileSync(join(__dirname, '../config', YAML_CONFIG_FILENAME), 'utf8'),
-  ) as Record<string, any>;
+    console.log(join(__dirname, '..', YAML_CONFIG_FILENAME));
+    return yaml.load(readFileSync(join(__dirname, '../config', YAML_CONFIG_FILENAME), 'utf8')) as Record<string, any>;
 };

@@ -1,9 +1,9 @@
 import { IsString } from 'class-validator';
 
 export class OrganisationDetailsResponseDto {
-  @IsString()
-  name: string;
+    @IsString()
+    name: string;
 
-  @IsString()
-  displayName: string;
+    @IsString()
+    displayName: string;
 }
