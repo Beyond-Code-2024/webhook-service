@@ -41,6 +41,7 @@ schema:
 interface Service {
     organisationId: string;
     events: string[];
+    whitelistedIps: string[];
     name: string;
     apiKey: string;
     apiSecret: string;
