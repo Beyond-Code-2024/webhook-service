@@ -63,9 +63,10 @@ interface Comment {
  interface Endpoint {
     serviceId: string;
     name: string;
-    endpoint: string;
+    endpointUrl: string;
     events: Event[];
     active: boolean;
+    secret: string; // used for creating a signature
     comments: Comment[]; // userful for tracking why we disabled
     createdAt: Date
     updatedAt: Date
