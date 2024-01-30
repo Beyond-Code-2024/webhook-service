@@ -1,13 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { ObjectId } from 'bson';
-import { HydratedDocument, Types } from 'mongoose';
+import { HydratedDocument } from 'mongoose';
 
-export type ClientsDocument = HydratedDocument<Organisation>;
+export type OrganisationDocument = HydratedDocument<Organisation>;
 
 @Schema({
     timestamps: true,
     collection: 'webhook-organisations',
-    _id: true,
 })
 export class Organisation {
     @Prop({ required: true, unique: true })

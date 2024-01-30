@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Organisation, OrganisationSchema } from './schemas/organisations.schema';
-import { AuthService } from './services/auth.service';
-import { OrganisationController } from './controllers/organisations/organisation.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AuthService } from './services/auth.service';
+import { OrganisationController } from './controllers/organisations/organisation.controller';
+import { Organisation, OrganisationSchema } from './schemas/organisations.schema';
 import { OrganisationService } from './services/organisation.service';
 import { AuthenticateOrganisationGuard } from './guards/auth-organisation.guard';
 
@@ -30,5 +30,6 @@ import { AuthenticateOrganisationGuard } from './guards/auth-organisation.guard'
     ],
     controllers: [OrganisationController],
     providers: [OrganisationService, AuthService, ConfigService, AuthenticateOrganisationGuard],
+    exports: [OrganisationService, AuthenticateOrganisationGuard, JwtModule],
 })
 export class ClientsModule {}

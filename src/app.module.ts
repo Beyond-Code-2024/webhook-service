@@ -1,10 +1,10 @@
-import { OrganisationService } from './clients/services/organisation.service';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AppService } from './app.service';
-import { ClientsModule } from './clients/clients.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AppService } from './app.service';
 import loadConfig from 'src/lib/app.config';
+import { ClientsModule } from './clients/clients.module';
+import { ServicesModule } from './services/services.module';
 
 @Module({
     imports: [
@@ -19,6 +19,7 @@ import loadConfig from 'src/lib/app.config';
             },
         }),
         ClientsModule,
+        ServicesModule,
     ],
     controllers: [],
     providers: [AppService, ConfigService],

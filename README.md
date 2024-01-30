@@ -110,10 +110,7 @@ interface EventLogs {
     payload: string;
     retryCount: string;
     logs: Log[];
-    idempotency: {
-        key: string; // to be sent by client service.
-        ttl: number; // number of seconds to keep the idempotency key active.
-    }
+    id: string; // used for the idempotency.
     createdAt: string;
     updatedAt: string;
 }
@@ -127,7 +124,7 @@ interface EventLogs {
     - [ ] change password
     - [ ] email verification
 - [ ] introduce service APIs
-     - [ ] register service API endpoint
+     - [x] register service API endpoint
      - [ ] update service details
      - [ ] re-generate service credentials
      - [ ] add events for a service
@@ -147,4 +144,7 @@ interface EventLogs {
 - [ ] introduce Redis for idempotency locks.
 - [ ] introduce rate limiting for service level API calls.
 - [ ] analytics
-- [ ] alerting clients(organisations) about any delivery failures.
+- [ ] alerting clients(organisations) about any delivery failures or outages.
+
+### Some readings
+- https://www.inngest.com/blog/building-webhooks-that-scale
